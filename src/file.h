@@ -14,11 +14,20 @@ public:
     string getExtension() { return _extension; }
     string getName()  { return _name; }
     string getPath() { return _path; }
+    int sourceCount() { return _source_count; }
+    int commentCount() { return _comment_count; }
+
+    /* Setters */
+    void setSourceCount(int nb) { _source_count = nb; }
+    void setCommentCount(int nb) { _comment_count = nb; }
 
 private:
     string _name;
     string _extension;
     string _path;
+
+    int _source_count;
+    int _comment_count;
 };
 
 #endif // FILE_H

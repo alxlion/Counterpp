@@ -57,8 +57,7 @@ int main(int argc, char *argv[])
 
 
     sc->process();
-    sc->printTableFiles();
-    sc->printTableResult();
+    cout << *sc << endl;
 
     delete sc;
     delete extensions;

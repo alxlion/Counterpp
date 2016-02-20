@@ -10,18 +10,22 @@ using namespace std;
 class Utils
 {
 public:
-    static void printInTab(string title, int* values) {
-        cout << left << setw(30) << setfill(' ') << title;
 
-        for(int i(0); i < sizeof(values)/sizeof(values[0]); i++) {
-            cout << setw(3) << setfill(' ') << " |" << setw(6) << values[i];
+    template<typename T>
+    static void format(ostream& out, string title, vector<T>* values) {
+
+        out << left << setw(30) << setfill(' ') << title;
+
+        for(int i(0); i < values->size(); i++) {
+            out << setw(3) << setfill(' ') << " |" << setw(6) << values->at(i);
         }
 
-        cout << endl;
+        out << endl;
+
     }
 
-    static void printSeparator() {
-        cout << left << setw(55) << setfill('-') << "-" << endl;
+    static void separator(ostream& out) {
+        out << left << setw(55) << setfill('-') << "-" << endl;
     }
 
     static vector<string> split(string & str, char sep) {

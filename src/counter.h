@@ -30,25 +30,25 @@ public:
     void process();
     void constructFilesFromFolder(Folder* f);
     void linesCount(File* f, int* result);
-    void printTableFiles() const;
-    void printTableResult() const;
-    ~Counter();
-    
-    /* Getters */
-    map<File*, int*> getResult() { return _result; }
 
+    /* Getters */
+    Folder* getRoot() { return _folder; }
+    vector<Folder*> getSubFolders() { return _sub_folders; }
+    
 private:
 
     /* Variables */
     Folder* _folder;
-    vector<string>*_allowed_extensions;
-    vector<File*> _files;
-    map<File*, int*> _result;
-    int _total_lines;
-    int _total_comments;
+    vector<string>* _allowed_extensions;
+    vector<Folder*> _sub_folders;
 
     /* Methods */
     bool isValid(string name) const;
+
+
+friend ostream& operator<< (ostream &out, Counter &c);
 };
+
+
 
 #endif // SUPCOUNT_H

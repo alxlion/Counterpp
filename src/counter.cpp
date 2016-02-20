@@ -3,47 +3,45 @@
 Counter::Counter(Folder* folder, vector<string>* allowed_extensions)
     : _folder(folder), _allowed_extensions(allowed_extensions) { }
 
-Counter::~Counter() {
-
-    // Free _files File pointers
-    for(int i = 0; i < _files.size(); i++) {
-        delete[] _files[i];
-    }
-
-    // Free _result File and int pointers
-    for(auto it = _result.begin(); it != _result.end(); ++it) {
-        delete it->first;
-        delete it->second;
-    }
-
-    delete _allowed_extensions;
-}
-
 /**
- * Get the number of files in the directory and add it to the current result map
- *
+ * Count process
  */
 void Counter::process() {
 
    constructFilesFromFolder(_folder);
 
-   for(int i(0); i < _files.size(); i++) {
+   for(int i(0); i < _folder->getFiles().size(); i++) {
 
-       // If the file extension is allowed
-       if ( find(_allowed_extensions->begin(), _allowed_extensions->end(), _files[i]->getExtension()) != _allowed_extensions->end() ) {
+       File* current_file = _folder->getFiles().at(i);
+
+       int* current_source_count = new int[2]{0, 0};
+       linesCount(current_file, current_source_count);
+
+       current_file->setSourceCount(current_source_count[0]);
+       current_file->setCommentCount(current_source_count[1]);
+
+   }
+
+   for(int i(0); i < _sub_folders.size(); i++) {
+
+       for(int j(0); j < _sub_folders[i]->getFiles().size(); j++) {
+
+           File* current_file = _sub_folders[i]->getFiles()[j];
+
            int* current_source_count = new int[2]{0, 0};
-           linesCount(_files[i], current_source_count);
+           linesCount(current_file, current_source_count);
 
-           _result.insert(pair<File*, int*>(_files[i], current_source_count));
-           _total_lines += current_source_count[0];
-           _total_comments += current_source_count[1];
+           current_file->setSourceCount(current_source_count[0]);
+           current_file->setCommentCount(current_source_count[1]);
+
        }
+
    }
 
 }
 
 /**
- * Browses all files in the directory and add these in the files vector
+ * Browses all files in the directory and adds these in their respective folder vector
  *
  * @param f Folder to browse
  */
@@ -58,9 +56,10 @@ void Counter::constructFilesFromFolder(Folder* f) {
 
             // Get all files from directory expects directories
             if( isValid(string(entry->d_name)) && entry->d_type == DT_REG) {
-                _files.push_back(new File(string(f->getPath() + "/" + entry->d_name)));
-            } else if ( isValid(string(entry->d_name)) && entry->d_type == DT_DIR) {
-                constructFilesFromFolder(new Folder(f->getPath() + "/" + entry->d_name));
+                f->addFile(new File(string(f->getPath() + "/" + entry->d_name)));
+            } else if ( string(entry->d_name) != "." && string(entry->d_name) != ".." && entry->d_type == DT_DIR) {
+                _sub_folders.push_back(new Folder(f->getPath() + "/" + entry->d_name));
+                constructFilesFromFolder(_sub_folders.back());
             }
 
         }
@@ -139,28 +138,55 @@ void Counter::linesCount(File* f, int* result) {
 /**
  * Checks if the file is a valid file
  *
- * @param name String name of the file *
+ * @param name String name of the file
  * @return true, if the file is valid. Else false.
  */
 bool Counter::isValid(string name) const {
-    return name != "." && name != ".." && name[0] != '.';
+
+    string ext =  name.substr(name.find_first_of(".") + 1, name.length());
+
+    if (find(_allowed_extensions->begin(), _allowed_extensions->end(), ext) != _allowed_extensions->end())
+        return name[0] != '.';
+
+    return false;
+
+
 }
 
-void Counter::printTableFiles() const {
+ostream& operator<< (ostream &out, Counter &c) {
 
-    Utils::printSeparator();
-    cout << left << setw(30) << setfill(' ') << "File" << " | #lines" << " | # comments" << endl;
-    Utils::printSeparator();
+    int total_source(0), total_comment(0);
 
-    for(auto it = _result.begin(); it != _result.end(); ++it) {
-        Utils::printInTab(it->first->getName(), it->second);
+    Utils::separator(out);
+    out << left << setw(30) << setfill(' ') << "File" << " | #lines" << " | #comments" << endl;
+    Utils::separator(out);
+
+    for(int i = 0; i < c.getRoot()->getFiles().size(); i++) {
+        File* current_file = c.getRoot()->getFiles().at(i);
+
+        Utils::format(out, current_file->getName(), new vector<int>{current_file->sourceCount(), current_file->commentCount()});
+
+        total_source += current_file->sourceCount();
+        total_comment += current_file->commentCount();
     }
-}
 
-void Counter::printTableResult() const {
-    int t[2] = {_total_lines, _total_comments};
+    for(int i = 0; i < c.getSubFolders().size(); i++) {
 
-    Utils::printSeparator();
-    Utils::printInTab("Total", t);
-    Utils::printSeparator();
+        for(int j = 0; j < c.getSubFolders()[i]->getFiles().size(); j++) {
+
+            File* current_file = c.getSubFolders()[i]->getFiles()[j];
+            Utils::format(out, current_file->getName(), new vector<int>{current_file->sourceCount(), current_file->commentCount()});
+
+            total_source += current_file->sourceCount();
+            total_comment += current_file->commentCount();
+        }
+
+    }
+
+    /* Print result */
+    int perc = (float)total_comment/(total_source+total_comment)*100.f;
+    Utils::separator(out);
+    Utils::format(out, "Total", new vector<string>{to_string(total_source), to_string(total_comment) + "("+ to_string(perc) + "%)"});
+    Utils::separator(out);
+
 }
