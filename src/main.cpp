@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     Counter *sc = NULL;
     vector<string>* extensions = new vector<string>();
 
-    // Execute SupCount with arguments
+    // Execute with arguments
     if(argc > 1) {
 
         if(strcmp(argv[1], "help") == 0) {
@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
                     extensions
                     );
 
-    } else { // Execute SupCount with stdin
+    } else { // Execute with stdin
 
         string path;
         string tmp_ext;
