@@ -107,7 +107,7 @@ void Counter::linesCount(File* const f, int* result) {
         }
 
         // HTML
-        if(f->getExtension() == "ejs" || f->getExtension() == "htm" || f->getExtension() == "xhtml") {
+        if(f->getExtension() == "html" || f->getExtension() == "htm" || f->getExtension() == "xhtml") {
 
             regex c_regex("^(?!A-Za-z) *<!--.*-->", regex_constants::ECMAScript);
             bool reg = regex_search(line, match, c_regex);
