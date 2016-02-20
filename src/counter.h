@@ -28,8 +28,8 @@ class Counter
 public:
     Counter(Folder* folder, vector<string>* allowed_extensions);
     void process();
-    void constructFilesFromFolder(Folder* f);
-    void linesCount(File* f, int* result);
+    void constructTreeFromFolder(Folder* f);
+    void linesCount(File* const f, int* result);
 
     /* Getters */
     Folder* getRoot() { return _folder; }
@@ -43,7 +43,7 @@ private:
     vector<Folder*> _sub_folders;
 
     /* Methods */
-    bool isValid(string name) const;
+    bool isValid(const string name) const;
 
 
 friend ostream& operator<< (ostream &out, Counter &c);

@@ -8,8 +8,9 @@ Counter::Counter(Folder* folder, vector<string>* allowed_extensions)
  */
 void Counter::process() {
 
-   constructFilesFromFolder(_folder);
+   constructTreeFromFolder(_folder);
 
+   // Root folder browsing
    for(int i(0); i < _folder->getFiles().size(); i++) {
 
        File* current_file = _folder->getFiles().at(i);
@@ -22,6 +23,7 @@ void Counter::process() {
 
    }
 
+   // Sub folders browsing
    for(int i(0); i < _sub_folders.size(); i++) {
 
        for(int j(0); j < _sub_folders[i]->getFiles().size(); j++) {
@@ -45,7 +47,7 @@ void Counter::process() {
  *
  * @param f Folder to browse
  */
-void Counter::constructFilesFromFolder(Folder* f) {
+void Counter::constructTreeFromFolder(Folder* f) {
 
     DIR* dir;
     struct dirent* entry;
@@ -54,12 +56,12 @@ void Counter::constructFilesFromFolder(Folder* f) {
 
         while(entry = readdir(dir)){
 
-            // Get all files from directory expects directories
+            // Add valid files to folder and recurse if it's a directory
             if( isValid(string(entry->d_name)) && entry->d_type == DT_REG) {
                 f->addFile(new File(string(f->getPath() + "/" + entry->d_name)));
             } else if ( string(entry->d_name) != "." && string(entry->d_name) != ".." && entry->d_type == DT_DIR) {
                 _sub_folders.push_back(new Folder(f->getPath() + "/" + entry->d_name));
-                constructFilesFromFolder(_sub_folders.back());
+                constructTreeFromFolder(_sub_folders.back());
             }
 
         }
@@ -74,7 +76,7 @@ void Counter::constructFilesFromFolder(Folder* f) {
  * @param f File to count lines
  * @param result to save code and comment number
  */
-void Counter::linesCount(File* f, int* result) {
+void Counter::linesCount(File* const f, int* result) {
 
     ifstream file(f->getPath());
     string line;
@@ -141,9 +143,9 @@ void Counter::linesCount(File* f, int* result) {
  * @param name String name of the file
  * @return true, if the file is valid. Else false.
  */
-bool Counter::isValid(string name) const {
+bool Counter::isValid(const string name) const {
 
-    string ext =  name.substr(name.find_first_of(".") + 1, name.length());
+    string ext = name.substr(name.find_first_of(".") + 1, name.length());
 
     if (find(_allowed_extensions->begin(), _allowed_extensions->end(), ext) != _allowed_extensions->end())
         return name[0] != '.';
@@ -161,6 +163,7 @@ ostream& operator<< (ostream &out, Counter &c) {
     out << left << setw(30) << setfill(' ') << "File" << " | #lines" << " | #comments" << endl;
     Utils::separator(out);
 
+    // Print root folder files and their results
     for(int i = 0; i < c.getRoot()->getFiles().size(); i++) {
         File* current_file = c.getRoot()->getFiles().at(i);
 
@@ -170,6 +173,7 @@ ostream& operator<< (ostream &out, Counter &c) {
         total_comment += current_file->commentCount();
     }
 
+    // Print sub folders files and their results
     for(int i = 0; i < c.getSubFolders().size(); i++) {
 
         for(int j = 0; j < c.getSubFolders()[i]->getFiles().size(); j++) {
@@ -183,7 +187,7 @@ ostream& operator<< (ostream &out, Counter &c) {
 
     }
 
-    /* Print result */
+    // Print final result
     int perc = (float)total_comment/(total_source+total_comment)*100.f;
     Utils::separator(out);
     Utils::format(out, "Total", new vector<string>{to_string(total_source), to_string(total_comment) + "("+ to_string(perc) + "%)"});
