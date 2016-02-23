@@ -5,24 +5,22 @@
 #include <vector>
 #include "file.h"
 
-using namespace std;
-
 class Folder
 {
 public:
-    Folder(string path);
+    Folder(std::string path);
     ~Folder();
 
     /* Getters */
-    string getPath() { return _path; }
-    vector<File*> getFiles() { return _files; }
+    std::string getPath() { return _path; }
+    std::vector<File*> getFiles() { return _files; }
 
     /* Setters */
     void addFile(File* f) { _files.push_back(f); }
 
 private:
-    string _path;
-    vector<File*> _files;
+    std::string _path;
+    std::vector<File*> _files;
 };
 
 #endif // FOLDER_H

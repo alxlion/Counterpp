@@ -16,8 +16,6 @@
 #include "file.h"
 #include "utils.h"
 
-using namespace std;
-
 /**
  * @class
  * Main class to compute line counting in source files
@@ -26,27 +24,27 @@ using namespace std;
 class Counter
 {
 public:
-    Counter(Folder* folder, vector<string>* allowed_extensions);
+    Counter(Folder* folder, std::vector<std::string>* allowed_extensions);
     void process();
     void constructTreeFromFolder(Folder* f);
     void linesCount(File* const f, int* result);
 
     /* Getters */
     Folder* getRoot() { return _folder; }
-    vector<Folder*> getSubFolders() { return _sub_folders; }
+    std::vector<Folder*> getSubFolders() { return _sub_folders; }
     
 private:
 
     /* Variables */
     Folder* _folder;
-    vector<string>* _allowed_extensions;
-    vector<Folder*> _sub_folders;
+    std::vector<std::string>* _allowed_extensions;
+    std::vector<Folder*> _sub_folders;
 
     /* Methods */
-    bool isValid(const string name) const;
+    bool isValid(const std::string name) const;
 
 
-friend ostream& operator<< (ostream &out, Counter &c);
+friend std::ostream& operator<< (std::ostream &out, Counter &c);
 };
 
 

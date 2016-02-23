@@ -1,6 +1,6 @@
 #include "folder.h"
 
-Folder::Folder(string path) : _path(path) { }
+Folder::Folder(std::string path) : _path(path) { }
 
 Folder::~Folder() {
 

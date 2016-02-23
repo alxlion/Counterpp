@@ -1,6 +1,6 @@
 #include "counter.h"
 
-Counter::Counter(Folder* folder, vector<string>* allowed_extensions)
+Counter::Counter(Folder* folder, std::vector<std::string>* allowed_extensions)
     : _folder(folder), _allowed_extensions(allowed_extensions) { }
 
 /**
@@ -58,9 +58,9 @@ void Counter::constructTreeFromFolder(Folder* f) {
         while(entry = readdir(dir)){
 
             // Add valid files to folder and recurse if it's a directory
-            if( isValid(string(entry->d_name)) && entry->d_type == DT_REG) {
-                f->addFile(new File(string(f->getPath() + "/" + entry->d_name)));
-            } else if ( string(entry->d_name) != "." && string(entry->d_name) != ".." && entry->d_type == DT_DIR) {
+            if( isValid(std::string(entry->d_name)) && entry->d_type == DT_REG) {
+                f->addFile(new File(std::string(f->getPath() + "/" + entry->d_name)));
+            } else if ( std::string(entry->d_name) != "." && std::string(entry->d_name) != ".." && entry->d_type == DT_DIR) {
                 _sub_folders.push_back(new Folder(f->getPath() + "/" + entry->d_name));
                 constructTreeFromFolder(_sub_folders.back());
             }
@@ -79,12 +79,12 @@ void Counter::constructTreeFromFolder(Folder* f) {
  */
 void Counter::linesCount(File* const f, int* result) {
 
-    ifstream file(f->getPath());
-    string line;
-    smatch match;
+    std::ifstream file(f->getPath());
+    std::string line;
+    std::smatch match;
     bool block(false);
 
-    while(getline(file, line)) {
+    while(std::getline(file, line)) {
 
         // C, C++, C#, JAVA, PHP, JAVASCRIPT
         if(f->getExtension() == "c" || f->getExtension() == "cpp" ||
@@ -92,8 +92,8 @@ void Counter::linesCount(File* const f, int* result) {
                 f->getExtension() == "cs" || f->getExtension() == "java" ||
                 f->getExtension() == "php" || f->getExtension() == "js") {
 
-            regex c_regex("^(?!A-Za-z) *(//|/\\*|\\*/)", regex_constants::ECMAScript);
-            bool reg = regex_search(line, match, c_regex);
+            std::regex c_regex("^(?!A-Za-z) *(//|/\\*|\\*/)", std::regex_constants::ECMAScript);
+            bool reg = std::regex_search(line, match, c_regex);
 
             if (reg || block) {
                 if(Utils::trim(match.str()) == "/*")
@@ -110,8 +110,8 @@ void Counter::linesCount(File* const f, int* result) {
         // HTML
         if(f->getExtension() == "html" || f->getExtension() == "htm" || f->getExtension() == "xhtml") {
 
-            regex c_regex("^(?!A-Za-z) *<!--.*-->", regex_constants::ECMAScript);
-            bool reg = regex_search(line, match, c_regex);
+            std::regex c_regex("^(?!A-Za-z) *<!--.*-->", std::regex_constants::ECMAScript);
+            bool reg = std::regex_search(line, match, c_regex);
 
             if (reg) {
                 result[1]++;
@@ -124,8 +124,8 @@ void Counter::linesCount(File* const f, int* result) {
         // PYTHON
         if(f->getExtension() == "py") {
 
-            regex c_regex("^(?!A-Za-z) *#", regex_constants::ECMAScript);
-            bool reg = regex_search(line, match, c_regex);
+            std::regex c_regex("^(?!A-Za-z) *#", std::regex_constants::ECMAScript);
+            bool reg = std::regex_search(line, match, c_regex);
 
             if (reg) {
                 result[1]++;
@@ -144,11 +144,11 @@ void Counter::linesCount(File* const f, int* result) {
  * @param name String name of the file
  * @return true, if the file is valid. Else false.
  */
-bool Counter::isValid(const string name) const {
+bool Counter::isValid(const std::string name) const {
 
-    string ext = name.substr(name.find_first_of(".") + 1, name.length());
+    std::string ext = name.substr(name.find_first_of(".") + 1, name.length());
 
-    if (find(_allowed_extensions->begin(), _allowed_extensions->end(), ext) != _allowed_extensions->end())
+    if (std::find(_allowed_extensions->begin(), _allowed_extensions->end(), ext) != _allowed_extensions->end())
         return name[0] != '.';
 
     return false;
@@ -156,19 +156,19 @@ bool Counter::isValid(const string name) const {
 
 }
 
-ostream& operator<< (ostream &out, Counter &c) {
+std::ostream& operator<< (std::ostream &out, Counter &c) {
 
     int total_source(0), total_comment(0);
 
     Utils::separator(out);
-    out << left << setw(30) << setfill(' ') << "File" << " | #lines" << " | #comments" << endl;
+    out << std::left << std::setw(30) << std::setfill(' ') << "File" << " | #lines" << " | #comments" << std::endl;
     Utils::separator(out);
 
     // Print root folder files and their results
     for(int i = 0; i < c.getRoot()->getFiles().size(); i++) {
         File* current_file = c.getRoot()->getFiles().at(i);
 
-        Utils::format(out, current_file->getName(), new vector<int>{current_file->sourceCount(), current_file->commentCount()});
+        Utils::format(out, current_file->getName(), new std::vector<int>{current_file->sourceCount(), current_file->commentCount()});
 
         total_source += current_file->sourceCount();
         total_comment += current_file->commentCount();
@@ -180,7 +180,7 @@ ostream& operator<< (ostream &out, Counter &c) {
         for(int j = 0; j < c.getSubFolders()[i]->getFiles().size(); j++) {
 
             File* current_file = c.getSubFolders()[i]->getFiles()[j];
-            Utils::format(out, current_file->getName(), new vector<int>{current_file->sourceCount(), current_file->commentCount()});
+            Utils::format(out, current_file->getName(), new std::vector<int>{current_file->sourceCount(), current_file->commentCount()});
 
             total_source += current_file->sourceCount();
             total_comment += current_file->commentCount();
@@ -191,7 +191,7 @@ ostream& operator<< (ostream &out, Counter &c) {
     // Print final result
     int perc = (float)total_comment/(total_source+total_comment)*100.f;
     Utils::separator(out);
-    Utils::format(out, "Total", new vector<string>{to_string(total_source), to_string(total_comment) + "("+ to_string(perc) + "%)"});
+    Utils::format(out, "Total", new std::vector<std::string>{std::to_string(total_source), std::to_string(total_comment) + "("+ std::to_string(perc) + "%)"});
     Utils::separator(out);
 
 }

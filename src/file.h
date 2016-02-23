@@ -3,17 +3,15 @@
 
 #include <string>
 
-using namespace std;
-
 class File
 {
 public:
-    File(string path);
+    File(std::string path);
 
     /* Getters */
-    string getExtension() { return _extension; }
-    string getName()  { return _name; }
-    string getPath() { return _path; }
+    std::string getExtension() { return _extension; }
+    std::string getName()  { return _name; }
+    std::string getPath() { return _path; }
     int sourceCount() { return _source_count; }
     int commentCount() { return _comment_count; }
 
@@ -22,9 +20,9 @@ public:
     void setCommentCount(int nb) { _comment_count = nb; }
 
 private:
-    string _name;
-    string _extension;
-    string _path;
+    std::string _name;
+    std::string _extension;
+    std::string _path;
 
     int _source_count;
     int _comment_count;

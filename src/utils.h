@@ -5,32 +5,32 @@
 #include <string>
 #include <iomanip>
 #include <vector>
-using namespace std;
 
 class Utils
 {
 public:
 
     template<typename T>
-    static void format(ostream& out, string title, vector<T>* values) {
+    static void format(std::ostream& out, std::string title, std::vector<T>* values) {
 
-        out << left << setw(30) << setfill(' ') << title;
+        out << std::left << std::setw(30) << std::setfill(' ') << title;
 
         for(int i(0); i < values->size(); i++) {
-            out << setw(3) << setfill(' ') << " |" << setw(6) << values->at(i);
+            out << std::setw(3) << std::setfill(' ') << " |" << std::setw(6) << values->at(i);
         }
 
-        out << endl;
+        out << std::endl;
 
     }
 
-    static void separator(ostream& out) {
-        out << left << setw(55) << setfill('-') << "-" << endl;
+    static void separator(std::ostream& out) {
+        out << std::left << std::setw(55) << std::setfill('-') << "-" << std::endl;
     }
 
-    static vector<string> split(string & str, char sep) {
-        vector<string> trimmed;
-        string tmp;
+    static std::vector<std::string> split(std::string & str, char sep) {
+
+        std::vector<std::string> trimmed;
+        std::string tmp;
 
         for(char & c : str) {
             if(c == ' ') {
@@ -47,7 +47,7 @@ public:
         return trimmed;
     }
 
-    static string trim(string str) {
+    static std::string trim(std::string str) {
         int i;
         while ((i = str.find_first_of(" \n\t")) != -1)
             str.erase(i,1);
