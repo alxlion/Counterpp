@@ -52,6 +52,7 @@ void Counter::constructTreeFromFolder(Folder* f) {
     DIR* dir;
     struct dirent* entry;
 
+
     if( dir = opendir(f->getPath().c_str()) ) {
 
         while(entry = readdir(dir)){
